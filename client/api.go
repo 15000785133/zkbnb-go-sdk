@@ -124,6 +124,9 @@ type ZkBNBQuerier interface {
 	// GetRollbacks returns tx rollback info
 	GetRollbacks(fromBlockHeight, offset, limit int64) (total uint32, rollbacks []*types.Rollback, err error)
 
+	// GetMaxCollectionId returns max collection id  by accountIndex
+	GetMaxCollectionId(accountIndex int64) (*types.MaxCollectionId, error)
+
 	// GetNftByTxHash returns nfts by txHash
 	GetNftByTxHash(txHash string) (*types.NftIndex, error)
 
