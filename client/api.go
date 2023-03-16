@@ -1,12 +1,12 @@
 package client
 
 import (
+	"github.com/bnb-chain/zkbnb-eth-rpc/core"
+	"github.com/bnb-chain/zkbnb-eth-rpc/rpc"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/ethclient"
 	"math/big"
 
 	"github.com/bnb-chain/zkbnb-go-sdk/accounts"
-	"github.com/bnb-chain/zkbnb-go-sdk/client/abi"
 	"github.com/bnb-chain/zkbnb-go-sdk/types"
 )
 
@@ -130,7 +130,7 @@ type ZkBNBQuerier interface {
 	GetNftByTxHash(txHash string) (*types.NftIndex, error)
 
 	// UpdateNftByIndex updates mutable attribute by NftIndex
-	UpdateNftByIndex(privateKey string, nft *types.UpdateNftReq) (*types.Mutable, error)
+	UpdateNftByIndex(nft *types.UpdateNftReq, signatureList ...string) (*types.Mutable, error)
 }
 
 type ZkBNBTxSender interface {
@@ -139,13 +139,13 @@ type ZkBNBTxSender interface {
 	KeyManager() accounts.KeyManager
 
 	// SendRawTx sends signed raw transaction and returns tx hash
-	SendRawTx(txType uint32, txInfo string, signature string) (string, error)
+	SendRawTx(txType uint32, txInfo string) (string, error)
 
 	// ChangePubKey will sign tx with key manager and send signed transaction
 	ChangePubKey(tx *types.ChangePubKeyReq, ops *types.TransactOpts, signatureList ...string) (string, error)
 
 	// GenerateSignBody generates the signature body for caller to calculate signature
-	GenerateSignBody(txData interface{}) (string, error)
+	GenerateSignBody(txData interface{}, ops *types.TransactOpts) (string, error)
 
 	// GenerateSignature generates the signature for l1 identifier validation
 	GenerateSignature(privateKey string, txData interface{}) (string, error)
@@ -162,7 +162,7 @@ type ZkBNBTxSender interface {
 	CancelOffer(tx *types.CancelOfferTxReq, ops *types.TransactOpts, signatureList ...string) (string, error)
 
 	// AtomicMatch will sign tx with key manager and send signed transaction
-	AtomicMatch(tx *types.AtomicMatchTxReq, ops *types.TransactOpts, signatureList ...string) (string, error)
+	AtomicMatch(tx *types.AtomicMatchTxReq, ops *types.TransactOpts) (string, error)
 
 	// WithdrawNft will sign tx with key manager and send signed transaction
 	WithdrawNft(tx *types.WithdrawNftTxReq, ops *types.TransactOpts, signatureList ...string) (string, error)
@@ -182,19 +182,19 @@ type ZkBNBL1Client interface {
 	SetPrivateKey(pk string) error
 
 	// DepositBNB will deposit specific amount bnb to l2
-	DepositBNB(accountName string, amount *big.Int) (common.Hash, error)
+	DepositBNB(l1Address string, amount *big.Int) (common.Hash, error)
 
 	// DepositBEP20 will deposit specific amount of bep20 token to l2
-	DepositBEP20(token common.Address, accountName string, amount *big.Int) (common.Hash, error)
+	DepositBEP20(token common.Address, l1Address string, amount *big.Int) (common.Hash, error)
 
 	// DepositNft will deposit specific nft to l2
-	DepositNft(nftL1Address common.Address, accountName string, nftL1TokenId *big.Int) (common.Hash, error)
+	DepositNft(nftL1Address common.Address, l1Address string, nftL1TokenId *big.Int) (common.Hash, error)
 
 	// RequestFullExit will request full exit from l2
-	RequestFullExit(accountName string, asset common.Address) (common.Hash, error)
+	RequestFullExit(accountIndex uint32, asset common.Address) (common.Hash, error)
 
 	// RequestFullExitNft will request full nft exit from l2
-	RequestFullExitNft(accountName string, nftIndex uint32) (common.Hash, error)
+	RequestFullExitNft(accountIndex uint32, nftIndex uint32) (common.Hash, error)
 }
 
 func NewZkBNBClientWithSeed(url, seed string, chainId uint64) (ZkBNBClient, error) {
@@ -213,12 +213,11 @@ func NewZkBNBClientWithSeed(url, seed string, chainId uint64) (ZkBNBClient, erro
 }
 
 func NewZkBNBL1Client(provider, zkbnbContract string) (ZkBNBL1Client, error) {
-	bscClient, err := ethclient.Dial(provider)
+	bscClient, err := rpc.NewClient(provider)
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
-
-	zkbnbContractInstance, err := abi.NewZkBNB(common.HexToAddress(zkbnbContract), bscClient)
+	zkbnbContractInstance, err := core.NewZkBNB(common.HexToAddress(zkbnbContract), bscClient)
 	if err != nil {
 		panic("new proxy contract error")
 	}

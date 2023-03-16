@@ -15,6 +15,7 @@ type OfferTxInfo struct {
 	ExpiredAt    int64
 	TreasuryRate int64
 	Sig          []byte
+	L1Sig        string
 }
 
 type ChangePubKeyReq struct {
@@ -40,6 +41,7 @@ type CreateCollectionTxReq struct {
 type MintNftTxReq struct {
 	To                  string
 	NftCollectionId     int64
+	NftContentType      int64
 	CreatorTreasuryRate int64
 	MetaData            string
 	MutableAttributes   string

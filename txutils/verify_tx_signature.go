@@ -75,8 +75,8 @@ func ConvertOfferTxInfo(tx *types.OfferTxInfo) *txtypes.OfferTxInfo {
 
 func ConvertChangePubKeyTxInfo(tx *types.ChangePubKeyReq, ops *types.TransactOpts) *txtypes.ChangePubKeyInfo {
 	var (
-		pubKeyX []byte
-		pubKeyY []byte
+		pubKeyX = make([]byte, 32)
+		pubKeyY = make([]byte, 32)
 	)
 	copy(pubKeyX[:], tx.PubKeyX[:])
 	copy(pubKeyY[:], tx.PubKeyY[:])
@@ -99,6 +99,7 @@ func ConvertMintNftTxInfo(tx *types.MintNftTxReq, ops *types.TransactOpts) *txty
 		ToAccountIndex:      ops.ToAccountIndex,
 		ToL1Address:         ops.ToAccountAddress,
 		NftCollectionId:     tx.NftCollectionId,
+		NftContentType:      tx.NftContentType,
 		CreatorTreasuryRate: tx.CreatorTreasuryRate,
 		GasAccountIndex:     ops.GasAccountIndex,
 		GasFeeAssetId:       ops.GasFeeAssetId,
@@ -169,6 +170,7 @@ func ConvertAtomicMatchTxInfo(tx *types.AtomicMatchTxReq, ops *types.TransactOpt
 			ExpiredAt:    tx.BuyOffer.ExpiredAt,
 			TreasuryRate: tx.BuyOffer.TreasuryRate,
 			Sig:          tx.BuyOffer.Sig,
+			L1Sig:        tx.BuyOffer.L1Sig,
 		},
 		SellOffer: &txtypes.OfferTxInfo{
 			Type:         tx.SellOffer.Type,
@@ -181,6 +183,7 @@ func ConvertAtomicMatchTxInfo(tx *types.AtomicMatchTxReq, ops *types.TransactOpt
 			ExpiredAt:    tx.SellOffer.ExpiredAt,
 			TreasuryRate: tx.SellOffer.TreasuryRate,
 			Sig:          tx.SellOffer.Sig,
+			L1Sig:        tx.SellOffer.L1Sig,
 		},
 		GasAccountIndex:   ops.GasAccountIndex,
 		GasFeeAssetId:     ops.GasFeeAssetId,
