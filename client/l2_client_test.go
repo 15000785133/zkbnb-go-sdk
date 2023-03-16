@@ -190,6 +190,19 @@ func TestGetNftByTxHash(t *testing.T) {
 	println(string(bz))
 }
 
+func TestGetTxsByAccountIndex(t *testing.T) {
+	sdkClient := prepareSdkClientWithSeed()
+	total, txs, err := sdkClient.GetTxsByAccountIndex(5, 0, 8)
+	if err != nil {
+		println(err.Error())
+		return
+	}
+	fmt.Println("Total Count:", total)
+	for _, tx := range txs {
+		fmt.Println("Tx Info:", tx.Info)
+	}
+}
+
 func TestUpdateNftByIndex(t *testing.T) {
 	sdkClient := prepareSdkClientWithPrivateKey()
 	updateNftReq := types.UpdateNftReq{
