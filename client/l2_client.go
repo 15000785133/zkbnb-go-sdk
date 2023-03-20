@@ -1412,7 +1412,7 @@ func (c *l2Client) parseResultStatus(respBody []byte) error {
 		return err
 	}
 	if resultStatus.Code != types.CodeOK {
-		return types.NewBusinessError(resultStatus.Code, resultStatus.Message)
+		return errors.New(resultStatus.Message)
 	}
 	return nil
 }
